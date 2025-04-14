@@ -37,6 +37,8 @@ To install git, run below commands in the terminal window:
 
 ```bash
 sudo apt-get update -y
+```
+```bash
 sudo apt-get install git -y
 ```
 
@@ -57,6 +59,8 @@ Get inside the directory and Install Packages
 
 ```bash
 cd nodejs-on-ec2
+```
+```bash
 npm install
 ```
 
