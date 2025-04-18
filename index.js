@@ -1,16 +1,38 @@
 var fs = require ('fs');
 var http = require('http');
 var https = require('https');
-var privateKey = fs.readFileSync('key.pem');
-var certificate = fs.readFileSync('cert.pem');
+// Start database connection
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize(
+  'scorecard_development',
+  'postgres',
+  'postgres',
+  {
+    host: 'localhost',
+    dialect: 'postgres'
+  }
+);
 
-var credentials = {key: privateKey, cert: certificate};
+// Test database connection
+sequelize.authenticate().then(() => {
+  console.log('Database connection has been established successfully.');
+}).catch((error) => {
+  console.error('Unable to connect to the database:', err);
+});
+
+// Start up express
 var express = require('express');
 var app = express();
 
+// Server routing
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
+
+// https redirection
+var privateKey = fs.readFileSync('key.pem');
+var certificate = fs.readFileSync('cert.pem');
+var credentials = {key: privateKey, cert: certificate};
 
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
