@@ -1,6 +1,7 @@
 var fs = require ('fs');
 var http = require('http');
 var https = require('https');
+
 // Start database connection
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize(
@@ -21,29 +22,39 @@ sequelize.authenticate().then(() => {
 });
 
 // Start up express
-var express = require('express');
+const express = require('express');
+const router = express.Router();
 var app = express();
 
-// Server routing
-app.get('/', (req, res) => {
+// Controllers
+const apiController = require('./controllers/apiController')
+
+app.use('/api', apiController);
+
+app.get('/api/v1/scorecards', (req, res) => {
   res.send('Hello World!')
 })
 
+app.listen(5000, () => {
+  console.log('Server running on port 5000');
+});
+
 // https redirection
-var privateKey = fs.readFileSync('key.pem');
-var certificate = fs.readFileSync('cert.pem');
-var credentials = {key: privateKey, cert: certificate};
+//var privateKey = fs.readFileSync('key.pem');
+//var certificate = fs.readFileSync('cert.pem');
+//var credentials = {key: privateKey, cert: certificate};
 
-var httpServer = http.createServer(app);
-var httpsServer = https.createServer(credentials, app);
+//var httpServer = http.createServer(app);
+//var httpsServer = https.createServer(credentials, app);
 
-app.use(function(req, res, next) {
-  res.redirect('https://' + req.headers.host + req.url);
-  next();
-});
 
-httpServer.listen(80);
+//app.use(function(req, res, next) {
+//  res.redirect('https://' + req.headers.host + req.url);
+//  next();
+//});
 
-httpsServer.listen(443, () => {
-  console.log('HTTP Server running on port 80');
-});
+//httpServer.listen(80);
+//
+//httpsServer.listen(443, () => {
+//  console.log('HTTP Server running on port 80');
+//});
