@@ -10,14 +10,70 @@
   background-color: #0d1f0a;
   padding: 1rem;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
 }
 
 .game-scoring__scoreboard {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  flex-direction: column;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 16px;
+  width: fit-content;
+}
+
+.game-scoring__scoreboard-header {
+  display: grid;
+  grid-template-columns: 150px repeat(9, 40px) repeat(3, 40px);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.game-scoring__scoreboard-row {
+  display: grid;
+  grid-template-columns: 150px repeat(9, 40px) repeat(3, 40px);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.game-scoring__header-cell {
+  padding: 8px 4px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 4px;
+  min-width: 2rem;
+}
+
+.game-scoring__header-cell:first-child {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  min-width: 0;
+}
+
+.game-scoring__team-cell {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 8px 4px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-scoring__score-cell {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 16px;
+  border-radius: 4px;
 }
 
 .game-scoring__team {
@@ -93,9 +149,16 @@
 .game-scoring__player {
   display: flex;
   align-items: center;
-  padding: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  margin-bottom: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
+}
+
+.game-scoring__player--current {
+  background-color: #ffd700;
+  color: #000;
+  font-weight: bold;
 }
 
 .game-scoring__player-number {
@@ -244,6 +307,57 @@
   text-align: center;
   font-weight: bold;
   margin-bottom: 8px;
+}
+
+.game-scoring__inning-scores {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.game-scoring__inning-score {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 14px;
+  color: white;
+}
+
+.game-scoring__total-score {
+  width: 32px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  margin-left: 4px;
+}
+
+.game-scoring__stats {
+  display: flex;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.game-scoring__stat {
+  font-size: 14px;
+  color: white;
+}
+
+.game-scoring__inning-situation {
+  font-size: 18px;
+  color: white;
+  text-align: center;
+  margin-bottom: 16px;
+  font-weight: bold;
 }
 
 @media (max-width: 768px) {
