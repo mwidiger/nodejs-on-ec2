@@ -13,7 +13,7 @@ const Layout = ({ children }) => {
           <div className="header-content">
             <Link to="/" className="logo">
               <img src="/logo192.png" alt="Baseball Scorer" />
-              <span>BaseballScorer</span>
+              <span>50/50 Scorer</span>
             </Link>
             <nav className="nav">
               <Link to="/games">Games</Link>

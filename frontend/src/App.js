@@ -1,12 +1,14 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
+import Leagues from './components/Leagues/Leagues';
 import './App.css';
 
 const HomePage = () => (
   <div className="home-content">
-    <h1>Welcome to BaseballScorer</h1>
+    <h1>Welcome to 50/50 Scorer</h1>
     <p>Your ultimate baseball scoring companion</p>
+    <Leagues />    
   </div>
 );
 
