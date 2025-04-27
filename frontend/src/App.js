@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import LeagueList from './components/Leagues/LeagueList';
 import LeagueForm from './components/Leagues/LeagueForm';
+import GameScoring from './components/GameScoring/GameScoring';
 import './App.css';
 
 const HomePage = () => (
@@ -16,7 +17,8 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/games" element={<div>Games Page</div>} />
+        <Route path="/games" element={<GameScoring />} />
+        <Route path="/games/:id" element={<GameScoring />} />
         <Route path="/teams" element={<div>Teams Page</div>} />
         <Route path="/stats" element={<div>Stats Page</div>} />
         <Route path="/scoreboard" element={<div>Live Scoreboard</div>} />

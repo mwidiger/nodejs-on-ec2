@@ -1,0 +1,261 @@
+.game-scoring {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #1a3a14;
+  color: white;
+}
+
+.game-scoring__header {
+  background-color: #0d1f0a;
+  padding: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-scoring__scoreboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.game-scoring__team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.game-scoring__team-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.game-scoring__score {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.game-scoring__game-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.game-scoring__inning {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.game-scoring__outs {
+  font-size: 1.2rem;
+}
+
+.game-scoring__content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.game-scoring__column {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.game-scoring__column--left,
+.game-scoring__column--right {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.game-scoring__column--center {
+  background-color: rgba(255, 255, 255, 0.1);
+  max-width: 400px;
+}
+
+.game-scoring__column-header {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.game-scoring__lineup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.game-scoring__player {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.game-scoring__player-number {
+  width: 30px;
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.game-scoring__player-name {
+  flex: 1;
+}
+
+.game-scoring__player-position {
+  width: 30px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.game-scoring__substitutes {
+  margin-top: 1rem;
+}
+
+.game-scoring__substitute {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.game-scoring__game-situation {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.game-scoring__bases {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.game-scoring__base {
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+}
+
+.game-scoring__base--occupied {
+  background-color: white;
+}
+
+.game-scoring__count {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.game-scoring__balls,
+.game-scoring__strikes {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.game-scoring__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.game-scoring__action-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.game-scoring__action-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.game-scoring__base-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.game-scoring__base-label {
+  font-size: 14px;
+  color: white;
+  text-align: center;
+}
+
+.game-scoring__base-runner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  color: white;
+  text-align: center;
+  width: 100%;
+}
+
+.game-scoring__count-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.game-scoring__count-label {
+  font-size: 12px;
+  color: white;
+}
+
+.game-scoring__count-circles {
+  display: flex;
+  gap: 4px;
+}
+
+.game-scoring__count-circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid white;
+  background-color: transparent;
+}
+
+.game-scoring__count-circle--filled {
+  background-color: white;
+}
+
+.game-scoring__bases-label {
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .game-scoring__content {
+    flex-direction: column;
+  }
+
+  .game-scoring__column {
+    max-width: 100%;
+  }
+
+  .game-scoring__column--center {
+    order: -1;
+  }
+} 
