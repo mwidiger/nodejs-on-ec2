@@ -1,15 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Modal from '../Common/Modal';
 import './LeagueList.css';
 
 const LeagueList = () => {
   const navigate = useNavigate();
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [leagueToDelete, setLeagueToDelete] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const leagues = [
     {
       id: 1,
@@ -45,32 +39,9 @@ const LeagueList = () => {
     navigate(`/leagues/${id}/edit`);
   };
 
-  const handleDeleteClick = (league) => {
-    setLeagueToDelete(league);
-    setDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!leagueToDelete) return;
-
-    setLoading(true);
-    try {
-      // TODO: Replace with actual API call
-      console.log('Deleting league:', leagueToDelete.id);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setDeleteModalOpen(false);
-      setLeagueToDelete(null);
-    } catch (err) {
-      setError('Failed to delete league');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteCancel = () => {
-    setDeleteModalOpen(false);
-    setLeagueToDelete(null);
+  const handleDeleteLeague = (id) => {
+    // TODO: Implement delete functionality
+    console.log('Delete league:', id);
   };
 
   return (
@@ -108,7 +79,7 @@ const LeagueList = () => {
               </button>
               <button 
                 className="league-list__action-button league-list__action-button--delete"
-                onClick={() => handleDeleteClick(league)}
+                onClick={() => handleDeleteLeague(league.id)}
               >
                 <i className="fas fa-trash"></i>
               </button>
@@ -126,15 +97,6 @@ const LeagueList = () => {
           Create New League
         </button>
       </div>
-
-      <Modal
-        isOpen={deleteModalOpen}
-        onClose={handleDeleteCancel}
-        onConfirm={handleDeleteConfirm}
-        title="Delete League"
-      >
-        Are you sure you want to delete {leagueToDelete?.name}? This action cannot be undone.
-      </Modal>
     </div>
   );
 };

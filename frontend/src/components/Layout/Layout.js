@@ -8,7 +8,7 @@ const Layout = ({ children }) => {
       <header className="layout__header">
         <nav className="layout__nav">
           <Link to="/" className="layout__logo">
-            <img src="/logo192.png" alt="Baseball Scorer" />
+            <img src="/5050logo.jpg" alt="50/50 Scorer" />
             <span>50/50 Scorer</span>
           </Link>
           <div className="layout__links">
@@ -29,7 +29,7 @@ const Layout = ({ children }) => {
 
       <footer className="footer">
         <div className="footer-content">
-          <p>&copy; {new Date().getFullYear()} 50/50 Sports Holdings</p>
+          <p>&copy; {new Date().getFullYear()} 50/50 Scorer</p>
           <div className="footer-links">
             <Link to="/about">About</Link>
             <Link to="/contact">Contact</Link>
