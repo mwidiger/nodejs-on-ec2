@@ -1,0 +1,139 @@
+.league-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.league-form__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.league-form__title {
+  font-size: 2rem;
+  color: white;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.league-form__form {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.league-form__group {
+  margin-bottom: 1.5rem;
+}
+
+.league-form__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: white;
+  font-weight: 500;
+}
+
+.league-form__input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+}
+
+.league-form__input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.league-form__color-input {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.league-form__color-picker {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.league-form__color-value {
+  color: white;
+  font-family: monospace;
+}
+
+.league-form__error {
+  color: #ff6b6b;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 4px;
+}
+
+.league-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.league-form__button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.league-form__button--cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.league-form__button--cancel:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.league-form__button--submit {
+  background: white;
+  color: #1a3a14;
+}
+
+.league-form__button--submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.league-form__button--submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .league-form {
+    padding: 1rem;
+  }
+
+  .league-form__form {
+    padding: 1.5rem;
+  }
+
+  .league-form__actions {
+    flex-direction: column;
+  }
+
+  .league-form__button {
+    width: 100%;
+  }
+} 

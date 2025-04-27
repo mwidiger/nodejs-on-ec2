@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './LeagueList.css';
 
 const LeagueList = () => {
+  const navigate = useNavigate();
   const leagues = [
     {
       id: 1,
@@ -29,6 +30,10 @@ const LeagueList = () => {
       color: '#0033A0'
     }
   ];
+
+  const handleCreateLeague = () => {
+    navigate('/leagues/new');
+  };
 
   return (
     <div className="league-list">
@@ -63,7 +68,10 @@ const LeagueList = () => {
       </div>
 
       <div className="league-list__actions">
-        <button className="league-list__create-button">
+        <button 
+          className="league-list__create-button"
+          onClick={handleCreateLeague}
+        >
           <i className="fas fa-plus league-list__create-icon"></i>
           Create New League
         </button>
