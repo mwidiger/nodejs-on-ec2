@@ -37,24 +37,24 @@ const Leagues = () => {
         <p className="leagues__description">Browse and manage your favorite baseball leagues</p>
       </div>
 
-      <div className="leagues__grid">
+      <div className="leagues__list">
         {leagues.map(league => (
           <Link to={`/leagues/${league.id}`} key={league.id} className="leagues__card">
-            <div className="leagues__card-content" style={{ backgroundColor: league.color }}>
-              <div className="leagues__logo">
-                <img src={league.logo} alt={`${league.name} logo`} className="leagues__logo-image" />
-              </div>
-              <div className="leagues__info">
+            <div className="leagues__card-content">
+              <div className="leagues__left">
+                <div className="leagues__logo">
+                  <img src={league.logo} alt={`${league.name} logo`} className="leagues__logo-image" />
+                </div>
                 <h2 className="leagues__name">{league.name}</h2>
-                <div className="leagues__stats">
-                  <div className="leagues__stat">
-                    <i className="fas fa-users leagues__stat-icon"></i>
-                    <span>{league.teams} Teams</span>
-                  </div>
-                  <div className="leagues__stat">
-                    <i className="fas fa-calendar leagues__stat-icon"></i>
-                    <span>{league.season}</span>
-                  </div>
+              </div>
+              <div className="leagues__stats">
+                <div className="leagues__stat">
+                  <i className="fas fa-users leagues__stat-icon"></i>
+                  <span>{league.teams} Teams</span>
+                </div>
+                <div className="leagues__stat">
+                  <i className="fas fa-calendar leagues__stat-icon"></i>
+                  <span>{league.season} Season</span>
                 </div>
               </div>
             </div>
