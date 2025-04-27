@@ -18,7 +18,7 @@ const LeagueForm = ({ isEdit }) => {
     if (isEdit) {
       fetchLeague();
     }
-  }, [isEdit]);
+  }, [isEdit, id]);
 
   const fetchLeague = async () => {
     setLoading(true);

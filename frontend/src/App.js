@@ -21,7 +21,8 @@ function App() {
         <Route path="/stats" element={<div>Stats Page</div>} />
         <Route path="/scoreboard" element={<div>Live Scoreboard</div>} />
         <Route path="/login" element={<div>Login Page</div>} />
-        <Route path="/leagues/new" element={<LeagueForm />} />
+        <Route path="/leagues/new" element={<LeagueForm isEdit={false} />} />
+        <Route path="/leagues/:id/edit" element={<LeagueForm isEdit={true} />} />
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </Layout>
