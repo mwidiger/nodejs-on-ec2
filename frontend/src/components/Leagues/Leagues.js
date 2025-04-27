@@ -31,28 +31,28 @@ const Leagues = () => {
   ];
 
   return (
-    <div className="leagues-container">
-      <div className="leagues-header">
-        <h1>Baseball Leagues</h1>
-        <p>Browse and manage your favorite baseball leagues</p>
+    <div className="leagues">
+      <div className="leagues__header">
+        <h1 className="leagues__title">Baseball Leagues</h1>
+        <p className="leagues__description">Browse and manage your favorite baseball leagues</p>
       </div>
 
-      <div className="leagues-grid">
+      <div className="leagues__grid">
         {leagues.map(league => (
-          <Link to={`/leagues/${league.id}`} key={league.id} className="league-card">
-            <div className="league-card-content" style={{ backgroundColor: league.color }}>
-              <div className="league-logo">
-                <img src={league.logo} alt={`${league.name} logo`} />
+          <Link to={`/leagues/${league.id}`} key={league.id} className="leagues__card">
+            <div className="leagues__card-content" style={{ backgroundColor: league.color }}>
+              <div className="leagues__logo">
+                <img src={league.logo} alt={`${league.name} logo`} className="leagues__logo-image" />
               </div>
-              <div className="league-info">
-                <h2>{league.name}</h2>
-                <div className="league-stats">
-                  <div className="stat">
-                    <i className="fas fa-users"></i>
+              <div className="leagues__info">
+                <h2 className="leagues__name">{league.name}</h2>
+                <div className="leagues__stats">
+                  <div className="leagues__stat">
+                    <i className="fas fa-users leagues__stat-icon"></i>
                     <span>{league.teams} Teams</span>
                   </div>
-                  <div className="stat">
-                    <i className="fas fa-calendar"></i>
+                  <div className="leagues__stat">
+                    <i className="fas fa-calendar leagues__stat-icon"></i>
                     <span>{league.season}</span>
                   </div>
                 </div>
@@ -62,9 +62,9 @@ const Leagues = () => {
         ))}
       </div>
 
-      <div className="leagues-actions">
-        <button className="create-league-btn">
-          <i className="fas fa-plus"></i>
+      <div className="leagues__actions">
+        <button className="leagues__create-button">
+          <i className="fas fa-plus leagues__create-icon"></i>
           Create New League
         </button>
       </div>
