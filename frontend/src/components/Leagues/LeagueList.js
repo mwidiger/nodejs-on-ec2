@@ -35,17 +35,24 @@ const LeagueList = () => {
     navigate('/leagues/new');
   };
 
+  const handleEditLeague = (id) => {
+    navigate(`/leagues/${id}/edit`);
+  };
+
+  const handleDeleteLeague = (id) => {
+    // TODO: Implement delete functionality
+    console.log('Delete league:', id);
+  };
+
   return (
     <div className="league-list">
       <div className="league-list__header">
-        <h1 className="league-list__title">Baseball Leagues</h1>
-        <p className="league-list__description">Browse and manage your favorite baseball leagues</p>
       </div>
 
       <div className="league-list__list">
         {leagues.map(league => (
-          <Link to={`/leagues/${league.id}`} key={league.id} className="league-list__card">
-            <div className="league-list__card-content">
+          <div key={league.id} className="league-list__card">
+            <Link to={`/leagues/${league.id}`} className="league-list__card-content">
               <div className="league-list__left">
                 <div className="league-list__logo">
                   <img src={league.logo} alt={`${league.name} logo`} className="league-list__logo-image" />
@@ -55,19 +62,33 @@ const LeagueList = () => {
               <div className="league-list__stats">
                 <div className="league-list__stat">
                   <i className="fas fa-users league-list__stat-icon"></i>
-                  <span>{league.teams} Teams</span>
+                  <span>{league.teams}</span>
                 </div>
                 <div className="league-list__stat">
                   <i className="fas fa-calendar league-list__stat-icon"></i>
-                  <span>{league.season} Season</span>
+                  <span>{league.season}</span>
                 </div>
               </div>
+            </Link>
+            <div className="league-list__card-actions">
+              <button 
+                className="league-list__action-button league-list__action-button--edit"
+                onClick={() => handleEditLeague(league.id)}
+              >
+                <i className="fas fa-edit"></i>
+              </button>
+              <button 
+                className="league-list__action-button league-list__action-button--delete"
+                onClick={() => handleDeleteLeague(league.id)}
+              >
+                <i className="fas fa-trash"></i>
+              </button>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 
-      <div className="league-list__actions">
+      <div className="league-list__footer">
         <button 
           className="league-list__create-button"
           onClick={handleCreateLeague}
