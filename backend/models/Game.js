@@ -1,6 +1,11 @@
+const GameConfig = require('./GameConfig');
+
 class Game {
-  constructor() {
-    this.balls = 0;
+  constructor(config = new GameConfig()) {
+    this.config = config;
+    this.balls = config.initialBalls;
+    this.strikes = config.initialStrikes;
+    this.outs = 0;
     this.events = [];
   }
 
