@@ -1,5 +1,25 @@
 import React, { useState } from 'react';
 import './GameScoring.css';
+import {
+  BallEvent,
+  StrikeEvent,
+  OutEvent,
+  HitEvent,
+  ErrorEvent,
+  StrikeoutEvent,
+  StolenBaseEvent,
+  CaughtStealingEvent,
+  WalkEvent,
+  RunnerAdvanceEvent,
+  FieldersChoiceEvent,
+  SacrificeEvent,
+  ThrowEvent,
+  PickoffEvent,
+  WildPitchEvent,
+  PassedBallEvent,
+  BalkEvent,
+  InterferenceEvent
+} from './GameEventTypes';
 
 const GameScoring = () => {
   const [gameState, setGameState] = useState({
@@ -9,9 +29,9 @@ const GameScoring = () => {
     balls: 0,
     strikes: 0,
     bases: {
-      first: false,
-      second: false,
-      third: false
+      first: null,
+      second: null,
+      third: null
     },
     homeTeam: {
       name: 'Home Team',
@@ -58,136 +78,263 @@ const GameScoring = () => {
         { number: 11, name: 'Sub 2', position: 'C' }
       ],
       nextBatter: 1
-    }
+    },
+    currentHalfInning: []
   });
 
   const handleAction = (action) => {
-    setGameState(prevState => {
-      const newState = { ...prevState };
-      const currentTeam = prevState.isTopInning ? prevState.awayTeam : prevState.homeTeam;
-      
-      switch (action) {
-        case 'ball':
-          if (newState.balls < 3) {
-            newState.balls++;
-          } else {
-            // Walk
-            newState.balls = 0;
-            newState.strikes = 0;
-            // Handle base advancement
-            if (newState.bases.first && newState.bases.second && newState.bases.third) {
-              // Score a run
-              currentTeam.score++;
-              currentTeam.inningScores[newState.inning - 1]++;
-            } else if (newState.bases.first && newState.bases.second) {
-              newState.bases.third = true;
-            } else if (newState.bases.first) {
-              newState.bases.second = true;
-            } else {
-              newState.bases.first = true;
-            }
-          }
-          break;
-        case 'strike':
-          if (newState.strikes < 2) {
-            newState.strikes++;
-          } else {
-            // Strikeout
-            newState.strikes = 0;
-            newState.balls = 0;
-            newState.outs++;
-            if (newState.outs >= 3) {
-              handleInningChange(newState);
-            }
-          }
-          break;
-        case 'out':
-          newState.outs++;
-          newState.strikes = 0;
-          newState.balls = 0;
-          if (newState.outs >= 3) {
-            handleInningChange(newState);
-          }
-          break;
-        case 'hit':
-          currentTeam.hits++;
-          // Handle base advancement based on hit type (single, double, triple, home run)
-          // For now, just advance all runners one base
+    const currentTeam = gameState.isTopInning ? gameState.awayTeam : gameState.homeTeam;
+    const currentBatter = currentTeam.lineup[currentTeam.nextBatter - 1];
+    let isWalk = false;
+    
+    const newState = { ...gameState };
+    const newHalfInning = [...newState.currentHalfInning];
+    
+    switch (action) {
+      case 'ball':
+        if (newState.balls < 3) {
+          newState.balls++;
+          newHalfInning.push(new BallEvent(currentBatter, newState.inning, newState.isTopInning));
+        } else {
+          // Walk - advance all runners one base
+          const walkEvent = new WalkEvent(currentBatter, newState.inning, newState.isTopInning);
+          
+          // Create runner advancement events for each base
           if (newState.bases.third) {
+            const runnerAdvance = new RunnerAdvanceEvent(
+              newState.bases.third,
+              newState.inning,
+              newState.isTopInning,
+              'third',
+              'home',
+              'walk'
+            );
+            walkEvent.addChildEvent(runnerAdvance);
             currentTeam.score++;
             currentTeam.inningScores[newState.inning - 1]++;
           }
-          newState.bases.third = newState.bases.second;
-          newState.bases.second = newState.bases.first;
-          newState.bases.first = true;
-          newState.strikes = 0;
-          newState.balls = 0;
-          break;
-        case 'error':
-          currentTeam.errors++;
-          break;
-        case 'walk':
-          if (newState.bases.first && newState.bases.second && newState.bases.third) {
-            currentTeam.score++;
-            currentTeam.inningScores[newState.inning - 1]++;
-          } else if (newState.bases.first && newState.bases.second) {
-            newState.bases.third = true;
-          } else if (newState.bases.first) {
-            newState.bases.second = true;
-          } else {
-            newState.bases.first = true;
+          if (newState.bases.second) {
+            const runnerAdvance = new RunnerAdvanceEvent(
+              newState.bases.second,
+              newState.inning,
+              newState.isTopInning,
+              'second',
+              'third',
+              'walk'
+            );
+            walkEvent.addChildEvent(runnerAdvance);
+            newState.bases.third = newState.bases.second;
           }
-          newState.strikes = 0;
-          newState.balls = 0;
-          break;
-        case 'k':
-          newState.strikes = 0;
-          newState.balls = 0;
-          newState.outs++;
-          if (newState.outs >= 3) {
-            handleInningChange(newState);
-          }
-          break;
-        case 'sb':
-          // Steal base
-          if (newState.bases.first && !newState.bases.second) {
-            newState.bases.first = false;
-            newState.bases.second = true;
-          } else if (newState.bases.second && !newState.bases.third) {
-            newState.bases.second = false;
-            newState.bases.third = true;
-          }
-          break;
-        case 'cs':
-          // Caught stealing
-          newState.outs++;
           if (newState.bases.first) {
-            newState.bases.first = false;
-          } else if (newState.bases.second) {
-            newState.bases.second = false;
-          } else if (newState.bases.third) {
-            newState.bases.third = false;
+            const runnerAdvance = new RunnerAdvanceEvent(
+              newState.bases.first,
+              newState.inning,
+              newState.isTopInning,
+              'first',
+              'second',
+              'walk'
+            );
+            walkEvent.addChildEvent(runnerAdvance);
+            newState.bases.second = newState.bases.first;
           }
+          
+          // Add batter to first base
+          const batterAdvance = new RunnerAdvanceEvent(
+            currentBatter,
+            newState.inning,
+            newState.isTopInning,
+            'batter',
+            'first',
+            'walk'
+          );
+          walkEvent.addChildEvent(batterAdvance);
+          newState.bases.first = currentBatter;
+          
+          // Reset count
+          newState.balls = 0;
+          newState.strikes = 0;
+          isWalk = true;
+          newHalfInning.push(walkEvent);
+        }
+        break;
+      case 'strike':
+        if (newState.strikes < 2) {
+          newState.strikes++;
+          newHalfInning.push(new StrikeEvent(currentBatter, newState.inning, newState.isTopInning));
+        } else {
+          // Strikeout
+          const strikeoutEvent = new StrikeoutEvent(currentBatter, newState.inning, newState.isTopInning);
+          newState.strikes = 0;
+          newState.balls = 0;
+          newState.outs++;
+          newHalfInning.push(strikeoutEvent);
           if (newState.outs >= 3) {
             handleInningChange(newState);
           }
-          break;
-      }
+        }
+        break;
+      case 'out':
+        const outEvent = new OutEvent(currentBatter, newState.inning, newState.isTopInning, 'field_out');
+        newState.outs++;
+        newState.strikes = 0;
+        newState.balls = 0;
+        newHalfInning.push(outEvent);
+        if (newState.outs >= 3) {
+          handleInningChange(newState);
+        }
+        break;
+      case 'hit':
+        currentTeam.hits++;
+        const hitEvent = new HitEvent(currentBatter, newState.inning, newState.isTopInning, 'single');
+        
+        // Create runner advancement events for each base
+        if (newState.bases.third) {
+          const runnerAdvance = new RunnerAdvanceEvent(
+            newState.bases.third,
+            newState.inning,
+            newState.isTopInning,
+            'third',
+            'home',
+            'hit'
+          );
+          hitEvent.addChildEvent(runnerAdvance);
+          currentTeam.score++;
+          currentTeam.inningScores[newState.inning - 1]++;
+        }
+        if (newState.bases.second) {
+          const runnerAdvance = new RunnerAdvanceEvent(
+            newState.bases.second,
+            newState.inning,
+            newState.isTopInning,
+            'second',
+            'third',
+            'hit'
+          );
+          hitEvent.addChildEvent(runnerAdvance);
+          newState.bases.third = newState.bases.second;
+        }
+        if (newState.bases.first) {
+          const runnerAdvance = new RunnerAdvanceEvent(
+            newState.bases.first,
+            newState.inning,
+            newState.isTopInning,
+            'first',
+            'second',
+            'hit'
+          );
+          hitEvent.addChildEvent(runnerAdvance);
+          newState.bases.second = newState.bases.first;
+        }
+        
+        // Add batter to first base
+        const batterAdvance = new RunnerAdvanceEvent(
+          currentBatter,
+          newState.inning,
+          newState.isTopInning,
+          'batter',
+          'first',
+          'hit'
+        );
+        hitEvent.addChildEvent(batterAdvance);
+        newState.bases.first = currentBatter;
+        
+        newState.strikes = 0;
+        newState.balls = 0;
+        newHalfInning.push(hitEvent);
+        break;
+      case 'error':
+        currentTeam.errors++;
+        const errorEvent = new ErrorEvent(currentBatter, newState.inning, newState.isTopInning, 'fielder');
+        newHalfInning.push(errorEvent);
+        break;
+      case 'k':
+        const strikeoutEvent = new StrikeoutEvent(currentBatter, newState.inning, newState.isTopInning);
+        newState.strikes = 0;
+        newState.balls = 0;
+        newState.outs++;
+        newHalfInning.push(strikeoutEvent);
+        if (newState.outs >= 3) {
+          handleInningChange(newState);
+        }
+        break;
+      case 'sb':
+        // Steal base
+        if (newState.bases.first && !newState.bases.second) {
+          const stolenBaseEvent = new StolenBaseEvent(
+            newState.bases.first,
+            newState.inning,
+            newState.isTopInning,
+            'first',
+            'second'
+          );
+          newState.bases.second = newState.bases.first;
+          newState.bases.first = null;
+          newHalfInning.push(stolenBaseEvent);
+        } else if (newState.bases.second && !newState.bases.third) {
+          const stolenBaseEvent = new StolenBaseEvent(
+            newState.bases.second,
+            newState.inning,
+            newState.isTopInning,
+            'second',
+            'third'
+          );
+          newState.bases.third = newState.bases.second;
+          newState.bases.second = null;
+          newHalfInning.push(stolenBaseEvent);
+        }
+        break;
+      case 'cs':
+        // Caught stealing
+        newState.outs++;
+        if (newState.bases.first) {
+          const caughtStealingEvent = new CaughtStealingEvent(
+            newState.bases.first,
+            newState.inning,
+            newState.isTopInning,
+            'first'
+          );
+          newHalfInning.push(caughtStealingEvent);
+          newState.bases.first = null;
+        } else if (newState.bases.second) {
+          const caughtStealingEvent = new CaughtStealingEvent(
+            newState.bases.second,
+            newState.inning,
+            newState.isTopInning,
+            'second'
+          );
+          newHalfInning.push(caughtStealingEvent);
+          newState.bases.second = null;
+        } else if (newState.bases.third) {
+          const caughtStealingEvent = new CaughtStealingEvent(
+            newState.bases.third,
+            newState.inning,
+            newState.isTopInning,
+            'third'
+          );
+          newHalfInning.push(caughtStealingEvent);
+          newState.bases.third = null;
+        }
+        if (newState.outs >= 3) {
+          handleInningChange(newState);
+        }
+        break;
+    }
 
-      // Update next batter
-      if (action === 'hit' || action === 'walk' || action === 'k' || action === 'out' || action === 'cs') {
-        currentTeam.nextBatter = currentTeam.nextBatter % 9 + 1;
-      }
+    // Update next batter only for actions that end the plate appearance
+    if (action === 'hit' || action === 'k' || action === 'out' || action === 'cs' || isWalk) {
+      currentTeam.nextBatter = currentTeam.nextBatter % 9 + 1;
+    }
 
-      return newState;
-    });
+    newState.currentHalfInning = newHalfInning;
+    setGameState(newState);
   };
 
   const handleInningChange = (state) => {
     state.outs = 0;
     state.balls = 0;
     state.strikes = 0;
-    state.bases = { first: false, second: false, third: false };
+    state.bases = { first: null, second: null, third: null };
+    state.currentHalfInning = [];
     
     if (state.isTopInning) {
       state.isTopInning = false;
@@ -276,9 +423,9 @@ const GameScoring = () => {
           <div className="game-scoring__game-situation">
             <div className="game-scoring__bases">
               <div className="game-scoring__bases-label">Baserunners:</div>
-              <div className="game-scoring__base-label">1B: {gameState.bases.first ? 'X' : 'None'}</div>
-              <div className="game-scoring__base-label">2B: {gameState.bases.second ? 'X' : 'None'}</div>
-              <div className="game-scoring__base-label">3B: {gameState.bases.third ? 'X' : 'None'}</div>
+              <div className="game-scoring__base-label">1B: {gameState.bases.first ? `${gameState.bases.first.name} (${gameState.bases.first.number})` : 'None'}</div>
+              <div className="game-scoring__base-label">2B: {gameState.bases.second ? `${gameState.bases.second.name} (${gameState.bases.second.number})` : 'None'}</div>
+              <div className="game-scoring__base-label">3B: {gameState.bases.third ? `${gameState.bases.third.name} (${gameState.bases.third.number})` : 'None'}</div>
             </div>
             <div className="game-scoring__count">
               <div className="game-scoring__count-section">
@@ -316,15 +463,86 @@ const GameScoring = () => {
               </div>
             </div>
             <div className="game-scoring__actions">
-              <button className="game-scoring__action-button" onClick={() => handleAction('ball')}>Ball</button>
-              <button className="game-scoring__action-button" onClick={() => handleAction('strike')}>Strike</button>
-              <button className="game-scoring__action-button" onClick={() => handleAction('out')}>Out</button>
-              <button className="game-scoring__action-button" onClick={() => handleAction('hit')}>Hit</button>
-              <button className="game-scoring__action-button" onClick={() => handleAction('error')}>Error</button>
-              <button className="game-scoring__action-button" onClick={() => handleAction('walk')}>Walk</button>
-              <button className="game-scoring__action-button" onClick={() => handleAction('k')}>K</button>
-              <button className="game-scoring__action-button" onClick={() => handleAction('sb')}>SB</button>
-              <button className="game-scoring__action-button" onClick={() => handleAction('cs')}>CS</button>
+              <button 
+                className="game-scoring__action-button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAction('ball');
+                }}
+              >
+                Ball
+              </button>
+              <button 
+                className="game-scoring__action-button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAction('strike');
+                }}
+              >
+                Strike
+              </button>
+              <button 
+                className="game-scoring__action-button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAction('out');
+                }}
+              >
+                Out
+              </button>
+              <button 
+                className="game-scoring__action-button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAction('hit');
+                }}
+              >
+                Hit
+              </button>
+              <button 
+                className="game-scoring__action-button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAction('error');
+                }}
+              >
+                Error
+              </button>
+              <button 
+                className="game-scoring__action-button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAction('k');
+                }}
+              >
+                K
+              </button>
+              <button 
+                className="game-scoring__action-button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAction('sb');
+                }}
+              >
+                SB
+              </button>
+              <button 
+                className="game-scoring__action-button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAction('cs');
+                }}
+              >
+                CS
+              </button>
             </div>
           </div>
         </div>
