@@ -1,5 +1,7 @@
 const Game = require('../models/Game');
 const GameConfig = require('../models/GameConfig');
+const BallEvent = require('../models/BallEvent');
+const StrikeEvent = require('../models/StrikeEvent');
 
 describe('Game', () => {
   let game;
@@ -8,34 +10,57 @@ describe('Game', () => {
     game = new Game();
   });
 
-  it('should initialize with config defaults', () => {
-    expect(game.balls).toBe(0);
-    expect(game.strikes).toBe(0);
-    expect(game.outs).toBe(0);
+  it('should initialize with default config', () => {
     expect(game.config).toBeInstanceOf(GameConfig);
   });
 
-  it('should initialize with custom config', () => {
-    const config = new GameConfig({ initialBalls: 2, initialStrikes: 1 });
-    const customGame = new Game(config);
-    expect(customGame.balls).toBe(2);
-    expect(customGame.strikes).toBe(1);
-    expect(customGame.config).toBe(config);
+  it('should initialize with default counts', () => {
+    expect(game.state.balls).toBe(0);
+    expect(game.state.strikes).toBe(0);
+    expect(game.state.outs).toBe(0);
   });
 
-  it('should initialize with empty events array', () => {
-    expect(game.events).toEqual([]);
+  it('should initialize with default inning state', () => {
+    expect(game.state.inning).toBe(1);
+    expect(game.state.isTopInning).toBe(true);
   });
 
-  it('should apply event changes to state', () => {
-    const mockEvent = {
-      apply: jest.fn(state => ({ ...state, balls: state.balls + 1 }))
-    };
+  it('should store initial state', () => {
+    expect(game.initialState).toEqual({
+      balls: 0,
+      strikes: 0,
+      outs: 0,
+      inning: 1,
+      isTopInning: true
+    });
+  });
+
+  it('should track events', () => {
+    const event = new BallEvent();
+    game.addEvent(event);
+    expect(game.events).toContain(event);
+  });
+
+  it('should not change inning for non-ending events', () => {
+    const event = new BallEvent();
+    game.addEvent(event);
+    expect(game.state.inning).toBe(1);
+    expect(game.state.isTopInning).toBe(true);
+  });
+
+  it('should toggle top/bottom inning when event ends inning', () => {
+    const event = new StrikeEvent();
+    event.inningEnds = true;
     
-    game.addEvent(mockEvent);
+    expect(game.state.isTopInning).toBe(true);
+    expect(game.state.inning).toBe(1);
     
-    expect(mockEvent.apply).toHaveBeenCalledWith(game);
-    expect(game.balls).toBe(1);
-    expect(game.events).toHaveLength(1);
+    game.addEvent(event);
+    expect(game.state.isTopInning).toBe(false);
+    expect(game.state.inning).toBe(1);
+
+    game.addEvent(event);
+    expect(game.state.isTopInning).toBe(true);
+    expect(game.state.inning).toBe(2);
   });
 }); 

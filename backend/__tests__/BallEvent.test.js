@@ -10,13 +10,15 @@ describe('BallEvent', () => {
     game = new Game();
   });
 
-  it('should initialize with timestamp', () => {
+  it('should initialize with timestamp and end flags', () => {
     expect(event.timestamp).toBeDefined();
+    expect(event.plateAppearanceEnds).toBe(false);
+    expect(event.inningEnds).toBe(false);
   });
 
   it('should increment balls when added to game', () => {
     game.addEvent(event);
-    expect(game.balls).toBe(1);
+    expect(game.state.balls).toBe(1);
   });
 
   it('should be tracked in game events', () => {

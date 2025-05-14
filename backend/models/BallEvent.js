@@ -1,12 +1,14 @@
 class BallEvent {
   constructor(timestamp = Date.now()) {
     this.timestamp = timestamp;
+    this.plateAppearanceEnds = false;
+    this.inningEnds = false;
   }
 
   apply(gameState) {
     return {
-      ...gameState,
-      balls: gameState.balls + 1
+      ...gameState.state,
+      balls: gameState.state.balls + 1
     };
   }
 }

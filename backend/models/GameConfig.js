@@ -1,10 +1,12 @@
 class GameConfig {
   constructor(overrides = {}) {
-    this.initialBalls = overrides.initialBalls || 0;
-    this.initialStrikes = overrides.initialStrikes || 0;
-    this.ballsForWalk = overrides.ballsForWalk || 4;
-    this.strikesForOut = overrides.strikesForOut || 3;
-    this.outsPerInning = overrides.outsPerInning || 3;
+    this.initialBalls = 0;
+    this.initialStrikes = 0;
+    this.ballsForWalk = 4;
+    this.strikesPerOut = 3;
+    this.outsPerInning = 3;
+
+    Object.assign(this, overrides);
   }
 }
 
