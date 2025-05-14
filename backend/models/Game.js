@@ -1,38 +1,35 @@
 const GameConfig = require('./GameConfig');
+const GameState = require('./GameState');
 
 class Game {
   constructor(config = new GameConfig()) {
     this.config = config;
-    this.state = {
-      balls: config.initialBalls,
-      strikes: config.initialStrikes,
-      outs: 0,
-      inning: 1,
-      isTopInning: true
-    };
+    this.gameState = new GameState(config);
     this.events = [];
     
     // Store initial state for reconstruction
-    this.initialState = { ...this.state };
+    this.initialState = { ...this.gameState.state };
   }
 
   addEvent(event) {
     this.events.push(event);
-    Object.assign(this.state, event.apply(this));
+    Object.assign(this.gameState.state, event.apply(this.gameState));
 
     if (event.inningEnds) {
-      this.state.outs = 0;
-      this.state.isTopInning = !this.state.isTopInning;
-      if (this.state.isTopInning) {
-        this.state.inning++;
-      }
+      this.gameState.handleInningEnd();
     }
   }
 
-  resetCount() {
-    this.state.balls = this.config.initialBalls;
-    this.state.strikes = this.config.initialStrikes;
-    this.state.outs = 0;
+  get state() {
+    return this.gameState.state;
+  }
+
+  get currentBatter() {
+    return this.gameState.currentBatter;
+  }
+
+  advanceLineup() {
+    this.gameState.advanceLineup();
   }
 }
 

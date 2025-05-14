@@ -5,6 +5,7 @@ class GameConfig {
     this.ballsForWalk = 4;
     this.strikesPerOut = 3;
     this.outsPerInning = 3;
+    this.playersPerRoster = 9;
 
     Object.assign(this, overrides);
   }
