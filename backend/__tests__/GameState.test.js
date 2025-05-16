@@ -80,4 +80,35 @@ describe('GameState', () => {
     expect(gameState.state.isTopInning).toBe(true);
     expect(gameState.state.inning).toBe(2);
   });
+
+  test('initializes scoring data', () => {
+    expect(gameState.state.homeTeam.inningScores).toEqual({});
+    expect(gameState.state.homeTeam.hits).toBe(0);
+    expect(gameState.state.homeTeam.errors).toBe(0);
+    expect(gameState.state.awayTeam.inningScores).toEqual({});
+    expect(gameState.state.awayTeam.hits).toBe(0);
+    expect(gameState.state.awayTeam.errors).toBe(0);
+  });
+
+  test('calculates total runs from inning scores', () => {
+    gameState.state.homeTeam.inningScores = {
+      1: 2,
+      2: 1,
+      3: 3
+    };
+    gameState.state.awayTeam.inningScores = {
+      1: 0,
+      2: 2
+    };
+    expect(gameState.totalRuns).toEqual({
+      home: 6,
+      away: 2
+    });
+  });
+
+  test('gets current fielding team', () => {
+    expect(gameState.currentFieldingTeam).toBe(gameState.state.homeTeam);
+    gameState.state.isTopInning = false;
+    expect(gameState.currentFieldingTeam).toBe(gameState.state.awayTeam);
+  });
 }); 

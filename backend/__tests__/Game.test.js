@@ -2,12 +2,15 @@ const Game = require('../models/Game');
 const GameConfig = require('../models/GameConfig');
 const BallEvent = require('../models/BallEvent');
 const StrikeEvent = require('../models/StrikeEvent');
+const BaseAdvanceEvent = require('../models/BaseAdvanceEvent');
 
 describe('Game', () => {
   let game;
+  let config;
 
   beforeEach(() => {
-    game = new Game();
+    config = new GameConfig();
+    game = new Game(config);
   });
 
   it('should initialize with default config', () => {
@@ -132,5 +135,17 @@ describe('Game', () => {
   test('initializes teams with correct lineup size', () => {
     expect(game.state.homeTeam.lineup).toHaveLength(game.config.playersPerRoster);
     expect(game.state.awayTeam.lineup).toHaveLength(game.config.playersPerRoster);
+  });
+
+  test('removes event from array when apply fails', () => {
+    // Create an invalid event (trying to move backwards)
+    const invalidEvent = new BaseAdvanceEvent(1, 0); // trying to move from second to first
+    
+    // Try to add the invalid event
+    expect(() => game.addEvent(invalidEvent)).toThrow();
+    
+    // Verify the event was not added to the array
+    expect(game.events).not.toContain(invalidEvent);
+    expect(game.events).toHaveLength(0);
   });
 }); 

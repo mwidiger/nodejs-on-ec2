@@ -12,11 +12,25 @@ class Game {
   }
 
   addEvent(event) {
-    this.events.push(event);
-    Object.assign(this.gameState.state, event.apply(this.gameState));
+    try {
+      Object.assign(this.gameState.state, event.apply(this.gameState));
+      this.events.push(event);
+      
+      // Add child events if any
+      if (event.childEvents) {
+        this.events.push(...event.childEvents);
+      }
 
-    if (event.inningEnds) {
-      this.gameState.handleInningEnd();
+      if (event.inningEnds) {
+        this.gameState.handleInningEnd();
+      }
+    } catch (error) {
+      // If there's an error, remove the event from the array if it was added
+      const index = this.events.indexOf(event);
+      if (index > -1) {
+        this.events.splice(index, 1);
+      }
+      throw error;
     }
   }
 

@@ -19,7 +19,11 @@ class GameState {
           { id: `H${config.playersPerRoster + 1}`, name: 'Home Sub 1', position: 0 },
           { id: `H${config.playersPerRoster + 2}`, name: 'Home Sub 2', position: 0 }
         ],
-        lineupPosition: 0
+        lineupPosition: 0,
+        inningScores: {}, // inning number -> runs
+        hits: 0,
+        errors: 0,
+        runs: 0
       },
       awayTeam: {
         name: 'Away',
@@ -32,7 +36,11 @@ class GameState {
           { id: `A${config.playersPerRoster + 1}`, name: 'Away Sub 1', position: 0 },
           { id: `A${config.playersPerRoster + 2}`, name: 'Away Sub 2', position: 0 }
         ],
-        lineupPosition: 0
+        lineupPosition: 0,
+        inningScores: {}, // inning number -> runs
+        hits: 0,
+        errors: 0,
+        runs: 0
       }
     };
   }
@@ -63,6 +71,17 @@ class GameState {
 
   get currentBattingTeam() {
     return this.state.isTopInning ? this.state.awayTeam : this.state.homeTeam;
+  }
+
+  get currentFieldingTeam() {
+    return this.state.isTopInning ? this.state.homeTeam : this.state.awayTeam;
+  }
+
+  get totalRuns() {
+    return {
+      home: Object.values(this.state.homeTeam.inningScores).reduce((sum, runs) => sum + runs, 0),
+      away: Object.values(this.state.awayTeam.inningScores).reduce((sum, runs) => sum + runs, 0)
+    };
   }
 }
 
