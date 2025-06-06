@@ -1,125 +1,76 @@
 const BallEvent = require('../models/BallEvent');
-const Game = require('../models/Game');
+const WalkEvent = require('../models/WalkEvent');
 const GameState = require('../models/GameState');
 const GameConfig = require('../models/GameConfig');
 
 describe('BallEvent', () => {
-  let event;
-  let game;
-  let gameState;
+  let beforeState;
   let config;
 
   beforeEach(() => {
-    event = new BallEvent();
-    game = new Game();
+    beforeState = new GameState();
     config = new GameConfig();
-    gameState = new GameState(config);
+    config.ballsPerWalk = 4; // Set default value for tests
   });
 
-  it('should initialize with timestamp and end flags', () => {
-    expect(event.timestamp).toBeDefined();
-    expect(event.plateAppearanceEnds).toBe(false);
-    expect(event.inningEnds).toBe(false);
+  test('should increment balls by 1', () => {
+    const event = new BallEvent(beforeState, config);
+    event.apply();
+    expect(event.afterState.balls).toBe(1);
   });
 
-  it('should increment balls when added to game', () => {
-    game.addEvent(event);
-    expect(game.state.balls).toBe(1);
+  test('should create WalkEvent on ball four', () => {
+    beforeState.balls = config.ballsPerWalk - 1;
+    const originalLineupPosition = beforeState.battingTeam.lineupPosition;
+    const event = new BallEvent(beforeState, config);
+    event.apply();
+    expect(event.childEvents.length).toBe(1);
+    expect(event.childEvents[0]).toBeInstanceOf(WalkEvent);
+    expect(event.afterState.balls).toBe(0);
+    expect(event.afterState.strikes).toBe(0);
+    expect(event.afterState.battingTeam.lineupPosition).toBe(
+      (originalLineupPosition + 1) % beforeState.battingTeam.lineup.length
+    );
   });
 
-  it('should be tracked in game events', () => {
-    game.addEvent(event);
-    expect(game.events).toContain(event);
+  test('should update afterState with WalkEvent state', () => {
+    beforeState.balls = config.ballsPerWalk - 1;
+    const originalLineupPosition = beforeState.battingTeam.lineupPosition;
+    const event = new BallEvent(beforeState, config);
+    event.apply();
+    expect(event.afterState.baseRunners[0]).toBe(beforeState.battingTeam.lineupPosition);
+    expect(event.afterState.battingTeam.lineupPosition).toBe(
+      (originalLineupPosition + 1) % beforeState.battingTeam.lineup.length
+    );
   });
 
-  test('increments ball count', () => {
-    const newState = event.apply(gameState);
-    expect(newState.balls).toBe(1);
-  });
+  test('should handle bases loaded walk correctly', () => {
+    // Setup bases loaded
+    beforeState.baseRunners[0] = 5; // Runner on first
+    beforeState.baseRunners[1] = 6; // Runner on second
+    beforeState.baseRunners[2] = 7; // Runner on third
+    
+    // Setup count
+    beforeState.balls = config.ballsPerWalk - 1;
+    beforeState.strikes = 2;
+    const originalLineupPosition = beforeState.battingTeam.lineupPosition;
 
-  test('walks batter with empty bases', () => {
-    gameState.state.balls = 3;
-    gameState.state.homeTeam.lineupPosition = 0; // first batter
-    const newState = event.apply(gameState);
-    expect(newState.balls).toBe(0);
-    expect(newState.strikes).toBe(0);
-    expect(newState.baseRunners[0]).toBe(0); // batter at first
-    expect(newState.baseRunners[1]).toBeNull();
-    expect(newState.baseRunners[2]).toBeNull();
-  });
+    const event = new BallEvent(beforeState, config);
+    event.apply();
 
-  test('walks batter with bases loaded', () => {
-    gameState.state.balls = 3;
-    gameState.state.baseRunners = [2, 1, 0]; // runners on all bases
-    gameState.state.homeTeam.lineupPosition = 3; // fourth batter
-    const newState = event.apply(gameState);
-    expect(newState.balls).toBe(0);
-    expect(newState.strikes).toBe(0);
-    expect(newState.baseRunners[0]).toBe(3); // batter at first
-    expect(newState.baseRunners[1]).toBe(2); // runner from first to second
-    expect(newState.baseRunners[2]).toBe(1); // runner from second to third
-    // runner from third scores (not tracked in baseRunners)
-  });
+    // Verify WalkEvent was created
+    expect(event.childEvents.length).toBe(1);
+    expect(event.childEvents[0]).toBeInstanceOf(WalkEvent);
 
-  test('walks batter with runners on first and second', () => {
-    gameState.state.balls = 3;
-    gameState.state.baseRunners = [1, 0, null]; // runners on first and second
-    gameState.state.homeTeam.lineupPosition = 2; // third batter
-    const newState = event.apply(gameState);
-    expect(newState.balls).toBe(0);
-    expect(newState.strikes).toBe(0);
-    expect(newState.baseRunners[0]).toBe(2); // batter at first
-    expect(newState.baseRunners[1]).toBe(1); // runner from first to second
-    expect(newState.baseRunners[2]).toBe(0); // runner from second to third
-  });
-
-  test('walks batter with runner on first only', () => {
-    gameState.state.balls = 3;
-    gameState.state.baseRunners = [0, null, null]; // runner on first only
-    gameState.state.homeTeam.lineupPosition = 1; // second batter
-    const newState = event.apply(gameState);
-    expect(newState.balls).toBe(0);
-    expect(newState.strikes).toBe(0);
-    expect(newState.baseRunners[0]).toBe(1); // batter at first
-    expect(newState.baseRunners[1]).toBe(0); // runner from first to second
-    expect(newState.baseRunners[2]).toBeNull();
-  });
-
-  test('walks batter with runner on second only', () => {
-    gameState.state.balls = 3;
-    gameState.state.baseRunners = [null, 0, null]; // runner on second only
-    gameState.state.homeTeam.lineupPosition = 1; // second batter
-    const newState = event.apply(gameState);
-    expect(newState.balls).toBe(0);
-    expect(newState.strikes).toBe(0);
-    expect(newState.baseRunners[0]).toBe(1); // batter at first
-    expect(newState.baseRunners[1]).toBe(0); // runner stays on second
-    expect(newState.baseRunners[2]).toBeNull();
-  });
-
-  test('walks batter with runners on first and third', () => {
-    gameState.state.balls = 3;
-    gameState.state.baseRunners = [1, null, 0]; // runners on first and third
-    gameState.state.homeTeam.lineupPosition = 2; // third batter
-    const newState = event.apply(gameState);
-    expect(newState.balls).toBe(0);
-    expect(newState.strikes).toBe(0);
-    expect(newState.baseRunners[0]).toBe(2); // batter at first
-    expect(newState.baseRunners[1]).toBe(1); // runner from first to second
-    expect(newState.baseRunners[2]).toBe(0); // runner stays on third
-  });
-
-  test('walks batter late in lineup', () => {
-    gameState.state.balls = 3;
-    const lastPosition = config.playersPerRoster - 1;
-    const secondToLastPosition = config.playersPerRoster - 2;
-    gameState.state.baseRunners = [secondToLastPosition, null, null]; // runner on first
-    gameState.state.homeTeam.lineupPosition = lastPosition; // last batter
-    const newState = event.apply(gameState);
-    expect(newState.balls).toBe(0);
-    expect(newState.strikes).toBe(0);
-    expect(newState.baseRunners[0]).toBe(lastPosition); // batter at first
-    expect(newState.baseRunners[1]).toBe(secondToLastPosition); // runner from first to second
-    expect(newState.baseRunners[2]).toBeNull();
+    // Verify final state
+    expect(event.afterState.balls).toBe(0);
+    expect(event.afterState.strikes).toBe(0);
+    expect(event.afterState.baseRunners[0]).toBe(beforeState.battingTeam.lineupPosition);
+    expect(event.afterState.baseRunners[1]).toBe(5);
+    expect(event.afterState.baseRunners[2]).toBe(6);
+    expect(event.afterState.battingTeam.runs).toBe(1);
+    expect(event.afterState.battingTeam.lineupPosition).toBe(
+      (originalLineupPosition + 1) % beforeState.battingTeam.lineup.length
+    );
   });
 }); 

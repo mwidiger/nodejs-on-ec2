@@ -1,49 +1,37 @@
 const GameConfig = require('./GameConfig');
+const GameEvent = require('./GameEvent');
 const GameState = require('./GameState');
+const { BASES } = GameEvent;
 
 class Game {
-  constructor(config = new GameConfig()) {
-    this.config = config;
-    this.gameState = new GameState(config);
+  constructor() {
+    this.config = new GameConfig();
     this.events = [];
-    
-    // Store initial state for reconstruction
-    this.initialState = { ...this.gameState.state };
+    this.initialState = new GameState();
   }
 
   addEvent(event) {
     try {
-      Object.assign(this.gameState.state, event.apply(this.gameState));
-      this.events.push(event);
+      event.validate();
       
-      // Add child events if any
-      if (event.childEvents) {
-        this.events.push(...event.childEvents);
-      }
-
-      if (event.inningEnds) {
-        this.gameState.handleInningEnd();
-      }
+      event.apply();
+      
+      this.events.push(event);
     } catch (error) {
-      // If there's an error, remove the event from the array if it was added
-      const index = this.events.indexOf(event);
-      if (index > -1) {
-        this.events.splice(index, 1);
-      }
       throw error;
     }
   }
 
-  get state() {
-    return this.gameState.state;
-  }
-
   get currentBatter() {
-    return this.gameState.currentBatter;
+    return this.state.battingTeam.lineupPosition;
   }
 
-  advanceLineup() {
-    this.gameState.advanceLineup();
+  get state() {
+    return this.events.length > 0 ? this.events[this.events.length - 1].afterState : this.initialState;
+  }
+
+  get lastEvent() {
+    return this.events.length > 0 ? this.events[this.events.length - 1] : null;
   }
 }
 

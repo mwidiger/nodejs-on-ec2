@@ -1,151 +1,106 @@
 const Game = require('../models/Game');
+const GameEvent = require('../models/GameEvent');
+const GameState = require('../models/GameState');
 const GameConfig = require('../models/GameConfig');
 const BallEvent = require('../models/BallEvent');
-const StrikeEvent = require('../models/StrikeEvent');
-const BaseAdvanceEvent = require('../models/BaseAdvanceEvent');
 
 describe('Game', () => {
   let game;
   let config;
 
   beforeEach(() => {
+    game = new Game();
     config = new GameConfig();
-    game = new Game(config);
   });
 
-  it('should initialize with default config', () => {
-    expect(game.config).toBeInstanceOf(GameConfig);
+  test('should start with initial state', () => {
+    const expectedState = new GameState();
+    expect(game.state).toEqual(expectedState);
   });
 
-  it('should initialize with default counts', () => {
-    expect(game.state.balls).toBe(0);
-    expect(game.state.strikes).toBe(0);
-    expect(game.state.outs).toBe(0);
-  });
+  test('should validate and apply event before adding to events list', () => {
+    // Create a mock event that tracks if validate and apply were called
+    class MockEvent extends GameEvent {
+      constructor(beforeState, config) {
+        super(beforeState, config);
+        this.validateCalled = false;
+        this.applyCalled = false;
+      }
 
-  it('should initialize with default inning state', () => {
-    expect(game.state.inning).toBe(1);
-    expect(game.state.isTopInning).toBe(true);
-  });
+      validate() {
+        this.validateCalled = true;
+        return true;
+      }
 
-  it('should initialize with teams and lineups', () => {
-    expect(game.state.homeTeam.name).toBe('Home');
-    expect(game.state.awayTeam.name).toBe('Away');
-    expect(game.state.homeTeam.lineup).toHaveLength(game.config.playersPerRoster);
-    expect(game.state.awayTeam.lineup).toHaveLength(game.config.playersPerRoster);
-    expect(game.state.homeTeam.substitutes).toHaveLength(2);
-    expect(game.state.awayTeam.substitutes).toHaveLength(2);
-  });
+      apply() {
+        this.applyCalled = true;
+      }
+    }
 
-  it('should support custom roster size', () => {
-    const customConfig = new GameConfig({ playersPerRoster: 11 });
-    const customGame = new Game(customConfig);
-    expect(customGame.state.homeTeam.lineup).toHaveLength(11);
-    expect(customGame.state.homeTeam.substitutes[0].id).toBe('H12');
-    expect(customGame.state.homeTeam.substitutes[1].id).toBe('H13');
-  });
-
-  it('should initialize players with correct positions', () => {
-    const homeLineup = game.state.homeTeam.lineup;
-    expect(homeLineup[0].position).toBe(1);
-    expect(homeLineup[game.config.playersPerRoster - 1].position).toBe(game.config.playersPerRoster);
-    expect(game.state.homeTeam.substitutes[0].position).toBe(0);
-  });
-
-  it('should initialize lineup positions at 0', () => {
-    expect(game.state.homeTeam.lineupPosition).toBe(0);
-    expect(game.state.awayTeam.lineupPosition).toBe(0);
-  });
-
-  it('should get current batter based on inning', () => {
-    expect(game.currentBatter).toBe(game.state.awayTeam.lineup[0]);
-    game.state.isTopInning = false;
-    expect(game.currentBatter).toBe(game.state.homeTeam.lineup[0]);
-  });
-
-  it('should advance lineup position', () => {
-    game.advanceLineup();
-    expect(game.state.awayTeam.lineupPosition).toBe(1);
-    game.advanceLineup();
-    expect(game.state.awayTeam.lineupPosition).toBe(2);
-  });
-
-  it('should wrap lineup position', () => {
-    game.state.awayTeam.lineupPosition = game.config.playersPerRoster - 1;
-    game.advanceLineup();
-    expect(game.state.awayTeam.lineupPosition).toBe(0);
-  });
-
-  it('should store initial state', () => {
-    expect(game.initialState).toEqual({
-      balls: 0,
-      strikes: 0,
-      outs: 0,
-      inning: 1,
-      isTopInning: true,
-      baseRunners: [null, null, null],
-      homeTeam: expect.any(Object),
-      awayTeam: expect.any(Object)
-    });
-  });
-
-  it('should track events', () => {
-    const event = new BallEvent();
+    const event = new MockEvent(game.state, game.config);
     game.addEvent(event);
+
+    expect(event.validateCalled).toBe(true);
+    expect(event.applyCalled).toBe(true);
     expect(game.events).toContain(event);
   });
 
-  it('should not change inning for non-ending events', () => {
-    const event = new BallEvent();
-    game.addEvent(event);
-    expect(game.state.inning).toBe(1);
-    expect(game.state.isTopInning).toBe(true);
+  test('should not add event if validation fails', () => {
+    // Create a mock event that fails validation
+    class MockEvent extends GameEvent {
+      constructor(beforeState, config) {
+        super(beforeState, config);
+        this.applyCalled = false;
+      }
+
+      validate() {
+        throw new Error('Validation failed');
+      }
+
+      apply() {
+        this.applyCalled = true;
+      }
+    }
+
+    const event = new MockEvent(game.state, game.config);
+    expect(() => game.addEvent(event)).toThrow('Validation failed');
+    expect(event.applyCalled).toBe(false);
+    expect(game.events).not.toContain(event);
   });
 
-  it('should toggle top/bottom inning when event ends inning', () => {
-    const event = new StrikeEvent();
-    event.inningEnds = true;
+  test('should not add event if apply fails', () => {
+    // Create a mock event that fails during apply
+    class MockEvent extends GameEvent {
+      constructor(beforeState, config) {
+        super(beforeState, config);
+      }
+
+      validate() {
+        return true;
+      }
+
+      apply() {
+        throw new Error('Apply failed');
+      }
+    }
+
+    const event = new MockEvent(game.state, game.config);
+    expect(() => game.addEvent(event)).toThrow('Apply failed');
+    expect(game.events).not.toContain(event);
+  });
+
+  test('lastEvent should return null when no events exist', () => {
+    expect(game.lastEvent).toBeNull();
+  });
+
+  test('lastEvent should return most recent event', () => {
+    const event1 = new BallEvent(game.state, config);
+    const event2 = new BallEvent(game.state, config);
     
-    expect(game.state.isTopInning).toBe(true);
-    expect(game.state.inning).toBe(1);
+    game.addEvent(event1);
+    expect(game.lastEvent).toBe(event1);
     
-    game.addEvent(event);
-    expect(game.state.isTopInning).toBe(false);
-    expect(game.state.inning).toBe(1);
-
-    game.addEvent(event);
-    expect(game.state.isTopInning).toBe(true);
-    expect(game.state.inning).toBe(2);
+    game.addEvent(event2);
+    expect(game.lastEvent).toBe(event2);
   });
-
-  test('initializes with correct default state', () => {
-    expect(game.state.balls).toBe(0);
-    expect(game.state.strikes).toBe(0);
-    expect(game.state.outs).toBe(0);
-    expect(game.state.inning).toBe(1);
-    expect(game.state.isTopInning).toBe(true);
-  });
-
-  test('stores initial state for reconstruction', () => {
-    expect(game.initialState).toEqual(game.state);
-    game.state.balls = 3;
-    expect(game.initialState.balls).toBe(0);
-  });
-
-  test('initializes teams with correct lineup size', () => {
-    expect(game.state.homeTeam.lineup).toHaveLength(game.config.playersPerRoster);
-    expect(game.state.awayTeam.lineup).toHaveLength(game.config.playersPerRoster);
-  });
-
-  test('removes event from array when apply fails', () => {
-    // Create an invalid event (trying to move backwards)
-    const invalidEvent = new BaseAdvanceEvent(1, 0); // trying to move from second to first
-    
-    // Try to add the invalid event
-    expect(() => game.addEvent(invalidEvent)).toThrow();
-    
-    // Verify the event was not added to the array
-    expect(game.events).not.toContain(invalidEvent);
-    expect(game.events).toHaveLength(0);
-  });
-}); 
+});
