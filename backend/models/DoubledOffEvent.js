@@ -5,7 +5,7 @@ class DoubledOffEvent extends OutEvent {
     // Doubled off doesn't reset count
     super(beforeState, config, false);
     this.runnerBase = runnerBase;
-    this.parentEvent = parentEvent;
+    this.setParentEvent(parentEvent);
   }
 
   validate() {

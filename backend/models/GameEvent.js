@@ -7,6 +7,7 @@ class GameEvent {
     this.afterState = beforeState.clone();
     this.config = config;
     this.childEvents = [];
+    this.parentEvent = null;
   }
 
   validate() {
@@ -21,6 +22,22 @@ class GameEvent {
   advanceLineup() {
     const team = this.afterState.battingTeam;
     team.lineupPosition = (team.lineupPosition + 1) % team.lineup.length;
+  }
+
+  setParentEvent(parentEvent) {
+    this.parentEvent = parentEvent;
+  }
+
+  syncParentState() {
+    if (this.parentEvent) {
+      this.parentEvent.afterState = this.afterState;
+    }
+  }
+
+  addChildEvent(childEvent) {
+    childEvent.apply();
+    this.childEvents.push(childEvent);
+    this.afterState = childEvent.afterState;
   }
 }
 
