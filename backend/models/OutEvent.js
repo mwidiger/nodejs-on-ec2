@@ -15,22 +15,27 @@ class OutEvent extends GameEvent {
     // Increment outs
     this.afterState.outs += 1;
 
-    // Reset count if specified
+    // Reset count if needed
     if (this.shouldResetCount) {
       this.afterState.balls = this.config.initialCount.balls;
       this.afterState.strikes = this.config.initialCount.strikes;
     }
 
-    // Advance lineup
-    this.advanceLineup();
+    // Advance lineup if needed
+    if (this.shouldResetCount) {
+      this.advanceLineup();
+    }
 
-    // If three outs, end the inning
-    if (this.afterState.outs === this.config.outsPerInning) {
+    // Check for end of inning
+    if (this.afterState.outs >= this.config.outsPerInning) {
       const endOfInningEvent = new EndOfInningEvent(this.afterState, this.config);
       endOfInningEvent.apply();
       this.childEvents.push(endOfInningEvent);
       this.afterState = endOfInningEvent.afterState;
+      return endOfInningEvent.afterState;
     }
+
+    return this.afterState;
   }
 }
 
