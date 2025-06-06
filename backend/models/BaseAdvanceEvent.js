@@ -46,7 +46,7 @@ class BaseAdvanceEvent extends GameEvent {
     }
 
     // Place runner at destination or score run
-    if (this.toBase === HOME_PLATE) {
+    if (this.toBase >= HOME_PLATE) {
       this.afterState.battingTeam.runs += 1;
     } else {
       this.afterState.baseRunners[this.toBase] = runner;
