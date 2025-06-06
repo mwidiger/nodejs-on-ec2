@@ -29,11 +29,6 @@ class EndOfInningEvent extends GameEvent {
     const homeTeamWinning = this.afterState.homeTeam.runs > this.afterState.awayTeam.runs;
     const bottomOfLastInningComplete = this.beforeState.inning === this.config.maxInnings && !this.beforeState.isTopInning;
 
-    console.log('isLastInning', isLastInning);
-    console.log('isBottomInning', isBottomInning);
-    console.log('homeTeamWinning', homeTeamWinning);
-    console.log('bottomOfLastInningComplete', bottomOfLastInningComplete);
-    
     if ((isLastInning && isBottomInning && homeTeamWinning) || bottomOfLastInningComplete) {
       const endOfGameEvent = new EndOfGameEvent(this.afterState, this.config, '');
       endOfGameEvent.apply();
